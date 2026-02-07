@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>01 - Loading 跑馬燈動畫 | 真實原始碼提取</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap">
+  
+  <!-- Lottie Player (原始網站使用 lottie-web) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  
+  <style>
+    /* ==============================================
+       真實 CSS - 從 entry.DKLpkfTP.css 提取
+       ============================================== */
+    
+    :lang(zh) {
+      font-family: Helvetica Neue, Noto Sans TC, sans-serif;
+    }
+    
+    *, :after, :before {
+      box-sizing: border-box;
+      border: 0 solid #e5e7eb;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f7f8f8; /* base-bgGrey - 真實背景色 */
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* ==============================================
+       .slt-display-1 (真實原始碼 - 響應式字體)
+       原始: font-size: 22.39vw → 16.15vw → 11.24vw
+       ============================================== */
+    
+    .slt-display-1 {
+      font-size: 22.39vw;
+      font-weight: 700;
+      letter-spacing: -5.28px;
+      line-height: 1;
+    }
+    
+    @media (min-width: 640px) {
+      .slt-display-1 {
+        font-size: 16.15vw;
+        letter-spacing: -7.44px;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .slt-display-1 {
+        font-size: 11.24vw;
+        letter-spacing: -0.67vw;
+        line-height: 1.2;
+      }
+    }
+    
+    /* ==============================================
+       .slt-marquee 跑馬燈動畫 (真實原始碼)
+       原始: animation: marquee 8s linear infinite
+       ============================================== */
+    
+    .slt-marquee {
+      animation: marquee 8s linear infinite;
+      animation-play-state: running;
+      display: inline-block;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+    
+    @keyframes marquee {
+      0% { transform: translate(0); }
+      to { transform: translate(-100%); }
+    }
+    
+    /* ==============================================
+       #loading-frame (真實原始碼結構)
+       原始類別: fixed left-0 top-0 h-full w-full overflow-hidden bg-base-bgGrey
+       ============================================== */
+    
+    #loading-frame {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: #f7f8f8;
+      z-index: 500; /* 原始 z-index */
+    }
+    
+    /* 隱藏動畫 (原始: slt-loading-fade -translate-y-full) */
+    #loading-frame.hidden {
+      transform: translateY(-100%);
+      transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    
+    /* ==============================================
+       Logo 圓形容器 (真實原始碼)
+       原始類別: absolute left-1/2 top-1/2 z-[5] h-[23.66vw] w-[23.66vw]
+       -translate-x-1/2 -translate-y-1/2
+       ============================================== */
+    
+    .logo-circle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 5;
+      height: 23.66vw;
+      width: 23.66vw;
+      transform: translate(-50%, -50%);
+    }
+    
+    @media (min-width: 393px) {
+      .logo-circle { height: 93px; width: 93px; }
+    }
+    
+    @media (min-width: 640px) {
+      .logo-circle { height: 124px; width: 124px; }
+    }
+    
+    @media (min-width: 1024px) {
+      .logo-circle {
+        height: 8.2vw;
+        width: 8.2vw;
+        max-height: 124px;
+        max-width: 124px;
+      }
+    }
+    
+    /* 掉落動畫 (原始: slt-drop translate-y-[calc(var(--window-height)/2)] scale-[0.5]) */
+    .logo-circle.dropped {
+      transform: translate(-50%, 50vh) scale(0.5);
+      transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    
+    /* 橘色內圓 (原始: absolute left-[4.5%] top-[4.5%] h-[91%] w-[91%] rounded-full bg-primary-orange) */
+    .logo-circle-inner {
+      position: absolute;
+      left: 4.5%;
+      top: 4.5%;
+      height: 91%;
+      width: 91%;
+      border-radius: 9999px;
+      background-color: #ff6400;
+    }
+    
+    /* Lottie 容器 */
+    .lottie-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      overflow: visible;
+    }
+    
+    /* 
+      原始 Lottie 動畫分析：
+      - 白色 logo 繞著橘色球中心 (600, 600) 旋轉
+      - 使用 CSS 讓整個白色 logo 包裝器繞著 SVG 中心旋轉
+    */
+    
+    /* 隱藏橘色內圓，因為 SVG 已有橘色背景 */
+    .logo-circle-inner {
+      display: none;
+    }
+    
+    /* ==============================================
+       跑馬燈容器 (真實原始碼)
+       原始類別: slt-display-1 absolute bottom-[8.14vw] left-0 right-0 w-full
+       overflow-x-hidden text-center text-base-silver
+       ============================================== */
+    
+    .marquee-container {
+      position: absolute;
+      bottom: 8.14vw;
+      left: 0;
+      right: 0;
+      width: 100%;
+      overflow-x: hidden;
+      text-align: center;
+      color: #d3d9e3; /* base-silver */
+    }
+    
+    @media (min-width: 393px) { .marquee-container { bottom: 32px; } }
+    @media (min-width: 640px) { .marquee-container { bottom: 48px; } }
+    @media (min-width: 1024px) { .marquee-container { bottom: 1.59vw; } }
+    @media (min-width: 1432px) { .marquee-container { bottom: 16px; } }
+    
+    /* 掉落動畫 */
+    .marquee-container.dropped {
+      transform: translateY(25vh);
+      transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+    
+    /* 跑馬燈軌道 (原始: flex flex-nowrap) */
+    .marquee-track {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+    
+    /* ==============================================
+       過渡覆蓋層 (真實原始碼)
+       原始: absolute left-0 top-0 h-full w-full bg-primary-orange
+       transition-transform ease-in-out-cubic
+       ============================================== */
+    
+    .transition-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #ff6400;
+      transform: translateY(100%);
+      transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+      z-index: 600; /* 確保在 Logo 和跑馬燈之上 */
+    }
+    
+    .transition-overlay.active {
+      transform: translateY(0);
+    }
+    
+    /* ==============================================
+       Demo 控制面板
+       ============================================== */
+    
+    .demo-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      font-family: sans-serif;
+      max-width: 280px;
+    }
+    
+    .demo-panel h3 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #ff6400;
+    }
+    
+    .demo-panel button {
+      display: block;
+      width: 100%;
+      padding: 10px 15px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    
+    .demo-panel button:hover { opacity: 0.9; }
+    .btn-play { background: #ff6400; color: white; }
+    .btn-pause { background: #444; color: white; }
+    .btn-drop { background: #e9ecf2; color: #333; }
+    .btn-transition { background: #333; color: #ff6400; border: 1px solid #ff6400; }
+    .btn-reset { background: #222; color: #888; }
+    
+    .demo-panel .info {
+      margin-top: 15px;
+      padding: 10px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #666;
+    }
+    
+    .demo-panel .info strong { color: #ff6400; }
+  </style>
+</head>
+<body lang="zh">
+
+<!--
+  ============================================
+  真實 HTML 結構 (從 about.html 提取)
+  原始屬性: data-v-9a63ab45 (Vue scoped)
+  ============================================
+-->
+
+<div id="loading-frame" data-v-9a63ab45>
+  
+  <!-- Logo 圓形 (原始結構) -->
+  <div class="logo-circle" id="logo" data-v-9a63ab45>
+    <div class="logo-circle-inner" data-v-9a63ab45></div>
+    <!-- Lottie SVG 動畫 - 真實橘子 Logo (從原始網站提取) -->
+    <div class="lottie-container" id="lottie-logo" data-v-9a63ab45>
+      <!-- 真實 SVG: 橘色圓形背景 + 白色橘子形狀 -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; overflow: visible;">
+        <g transform="matrix(1,0,0,1,0,0)" opacity="1" style="display: block;">
+          <!-- 橘色圓形背景 (半徑 540, 中心 600,600) -->
+          <g opacity="1" transform="matrix(1,0,0,1,600,600)">
+            <path fill="rgb(255,100,0)" fill-opacity="1" d=" M540,0 C540,298.2340087890625 298.2340087890625,540 0,540 C-298.2340087890625,540 -540,298.2340087890625 -540,0 C-540,-298.2340087890625 -298.2340087890625,-540 0,-540 C298.2340087890625,-540 540,-298.2340087890625 540,0z"></path>
+          </g>
+          <!-- 白色橘子形狀 Logo - 繞著 (600,600) 中心旋轉 -->
+          <g id="white-logo" opacity="1">
+            <!-- 1. 公轉: 繞中心 (600,600) 順時針旋轉 -->
+            <animateTransform 
+              attributeName="transform"
+              type="rotate"
+              from="0 600 600"
+              to="360 600 600"
+              dur="2.5s"
+              repeatCount="indefinite"/>
+            
+            <!-- 2. 自轉 wrapper: 繞自身中心 (800,800) 逆時針旋轉 (保持直立) -->
+            <g>
+                <animateTransform 
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 800 800"
+                  to="-360 800 800"
+                  dur="2.5s"
+                  repeatCount="indefinite"/>
+                
+                <!-- 白色 logo 本體 -->
+                <g transform="translate(800, 800) scale(0.5)">
+              <path fill="rgb(255,255,255)" fill-opacity="1" d=" M177.50100708007812,-60.3120002746582 C147.36199951171875,-7.997000217437744 110.19200134277344,42.65800094604492 67.99199676513672,85.9020004272461 C48.215999603271484,106.56700134277344 26.826000213623047,125.25299835205078 3.812999963760376,142.22799682617188 C-5.848999977111816,149.48699951171875 -16.874000549316406,157.65499877929688 -28.288999557495117,161.8350067138672 C-29.14699935913086,161.87399291992188 -30.003999710083008,161.91400146484375 -30.861000061035156,161.95399475097656 C-30.861000061035156,161.95399475097656 -30.829999923706055,161.36900329589844 -30.829999923706055,161.36900329589844 C-24.729999542236328,152.34500122070312 -13.095000267028809,145.26499938964844 -4.840000152587891,138.30999755859375 C37.05400085449219,103.01399993896484 78.40899658203125,66.90799713134766 107.48400115966797,19.799999237060547 C115.072998046875,7.502999782562256 121.80000305175781,-5.326000213623047 127.09400177001953,-18.785999298095703 C141.1009979248047,-55.119998931884766 147.3679962158203,-103.9520034790039 112.82499694824219,-131.1699981689453 C91.1520004272461,-148.78799438476562 66.5530014038086,-167.89100646972656 39.981998443603516,-146.28599548339844 C39.86399841308594,-146.13099670410156 39.763999938964844,-145.95899963378906 39.6870002746582,-145.7790069580078 C41.553001403808594,-163.58299255371094 43.132999420166016,-181.41000366210938 43.58700180053711,-199.31399536132812 C26.17099952697754,-192.12899780273438 8.935999870300293,-184.64100646972656 -8.651000022888184,-177.8679962158203 C-10.248000144958496,-177.50599670410156 -11.62399959564209,-176.6009979248047 -12.545999526977539,-175.27699279785156 C-12.545999526977539,-175.27699279785156 -12.753999710083008,-174.27999877929688 -12.753999710083008,-174.27999877929688 C-11.47700023651123,-158.01400756835938 -10.109999656677246,-141.7449951171875 -9.798999786376953,-125.4229965209961 C-70.43900299072266,-91.90799713134766 -128.1699981689453,-37.70800018310547 -161.14300537109375,23.617000579833984 C-170.58200073242188,41.17100143432617 -177.92100524902344,59.95399856567383 -181.2519989013672,79.66600036621094 C-186.47900390625,113.28099822998047 -172.8520050048828,144.88099670410156 -142.11199951171875,160.6179962158203 C-106.7229995727539,177.57000732421875 -63.60200119018555,160.6909942626953 -30.60099983215332,145.62399291992188 C-41.53200149536133,154.6909942626953 -52.9109992980957,163.23500061035156 -64.28600311279297,171.73399353027344 C-73.4020004272461,178.54400634765625 -85.12000274658203,185.51800537109375 -91.64099884033203,195.05999755859375 C-91.98899841308594,195.63499450683594 -92.19100189208984,196.27000427246094 -92.24600219726562,196.94400024414062 C-92.24600219726562,196.94400024414062 -92.13500213623047,197.50100708007812 -92.13500213623047,197.50100708007812 C-92.13500213623047,197.50100708007812 -92.08399963378906,197.59100341796875 -92.08399963378906,197.59100341796875 C-92.08399963378906,197.59100341796875 -91.68499755859375,197.98399353027344 -91.68499755859375,197.98399353027344 C-91.68499755859375,197.98399353027344 -91.0469970703125,198.27499389648438 -91.0469970703125,198.27499389648438 C-76.49299621582031,199.31399536132812 -58.16699981689453,186.0760040283203 -46.04600143432617,179.60699462890625 C32.94200134277344,134.468994140625 100.27899932861328,71.9020004272461 148.77000427246094,-5.283999919891357 C163.15199279785156,-28.177000045776367 175.41200256347656,-52.090999603271484 186.47900390625,-76.73799896240234 C183.6179962158203,-71.18499755859375 180.70399475097656,-65.67900085449219 177.50100708007812,-60.3120002746582z M-83.9489974975586,98.94400024414062 C-125.65699768066406,62.84400177001953 -88.53299713134766,1.4739999771118164 -57.76599884033203,-27.99799919128418 C-27.777999877929688,-55.72100067138672 32.48899841308594,-87.47100067138672 66.6050033569336,-47.402000427246094 C98.78700256347656,-9.100000381469727 63.90399932861328,41.215999603271484 35.9370002746582,69.76200103759766 C1.8639999628067017,101.86599731445312 -39.777000427246094,131.8489990234375 -83.9489974975586,98.94400024414062z"></path>
+            </g>
+           </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  
+  <!-- 跑馬燈文字 (原始結構: 6 個 span) -->
+  <div class="marquee-container slt-display-1" id="marquee" data-v-9a63ab45>
+    <div class="marquee-track" data-v-9a63ab45>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+      <span class="slt-marquee" data-v-9a63ab45>Loading... </span>
+    </div>
+  </div>
+  
+  <!-- 過渡覆蓋層 -->
+  <div class="transition-overlay" id="overlay" data-v-9a63ab45></div>
+</div>
+
+<!-- Demo 控制面板 -->
+<div class="demo-panel">
+  <h3>🍊 Loading 動畫 - 真實原始碼</h3>
+  <button class="btn-play" onclick="playMarquee()">▶ 播放跑馬燈</button>
+  <button class="btn-pause" onclick="pauseMarquee()">⏸ 暫停跑馬燈</button>
+  <button class="btn-drop" onclick="triggerDrop()">⬇ 觸發掉落動畫</button>
+  <button class="btn-transition" onclick="triggerTransition()">🔶 觸發橘色過渡</button>
+  <button class="btn-reset" onclick="resetAll()">↺ 重置全部</button>
+  
+  <div class="info">
+    <strong>真實原始碼來源:</strong><br>
+    • HTML: about.html #loading-frame<br>
+    • CSS: entry.DKLpkfTP.css<br>
+    • 動畫: @keyframes marquee 8s linear<br>
+    • z-index: 500 (原始值)<br>
+    • 背景: #f7f8f8 (base-bgGrey)
+  </div>
+</div>
+
+<script>
+  // 控制函數 - 使用 CSS 動畫控制白色橘子 logo 的螺旋穿透動畫
+  const whiteLogo = document.getElementById('white-logo');
+  
+  function playMarquee() {
+    // 跑馬燈
+    document.querySelectorAll('.slt-marquee').forEach(el => {
+      el.style.animationPlayState = 'running';
+    });
+    // 白色 logo 螺旋動畫
+    if (whiteLogo) {
+      whiteLogo.style.animationPlayState = 'running';
+    }
+  }
+  
+  function pauseMarquee() {
+    // 跑馬燈
+    document.querySelectorAll('.slt-marquee').forEach(el => {
+      el.style.animationPlayState = 'paused';
+    });
+    // 白色 logo 螺旋動畫
+    if (whiteLogo) {
+      whiteLogo.style.animationPlayState = 'paused';
+    }
+  }
+  
+  function triggerDrop() {
+    document.getElementById('logo').classList.add('dropped');
+    document.getElementById('marquee').classList.add('dropped');
+  }
+  
+  function triggerTransition() {
+    triggerDrop();
+    setTimeout(() => {
+      document.getElementById('overlay').classList.add('active');
+    }, 300);
+    // 延長等待時間，讓橘色過渡完全顯示後再滑走
+    setTimeout(() => {
+      document.getElementById('loading-frame').classList.add('hidden');
+    }, 1500);
+  }
+  
+  function resetAll() {
+    document.getElementById('logo').classList.remove('dropped');
+    document.getElementById('marquee').classList.remove('dropped');
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('loading-frame').classList.remove('hidden');
+    playMarquee();
+  }
+  
+  // 頁面載入時自動播放
+  document.addEventListener('DOMContentLoaded', playMarquee);
+</script>
+
+</body>
+</html>

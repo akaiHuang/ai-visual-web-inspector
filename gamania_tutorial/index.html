@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamania 動畫技術教學 - 拆解分析</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-orange: #FF6400;
+      --base-black: #1a1a1a;
+      --base-white: #fff;
+      --base-grey: #f5f5f5;
+      --card-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    body {
+      font-family: 'Noto Sans TC', 'Helvetica Neue', sans-serif;
+      background: var(--base-grey);
+      color: var(--base-black);
+      line-height: 1.6;
+    }
+    
+    /* Header */
+    header {
+      background: var(--base-black);
+      color: var(--base-white);
+      padding: 60px 20px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    header h1 span {
+      color: var(--primary-orange);
+    }
+    
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* 原始網站連結 */
+    .original-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: var(--primary-orange);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .original-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 100, 0, 0.4);
+    }
+    
+    /* Main Content */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Section Title */
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--primary-orange);
+      display: inline-block;
+    }
+    
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    
+    /* Demo Card */
+    .demo-card {
+      background: var(--base-white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .card-preview {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+    
+    .card-preview iframe {
+      width: 200%;
+      height: 200%;
+      transform: scale(0.5);
+      transform-origin: top left;
+      border: none;
+      pointer-events: none;
+    }
+    
+    .card-preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.7));
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 15px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .demo-card:hover .card-preview-overlay {
+      opacity: 1;
+    }
+    
+    .preview-btn {
+      padding: 8px 20px;
+      background: var(--primary-orange);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    
+    .card-content {
+      padding: 20px;
+    }
+    
+    .card-number {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-orange);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+    
+    .card-desc {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .tag {
+      padding: 4px 10px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .tag.primary {
+      background: rgba(255, 100, 0, 0.1);
+      color: var(--primary-orange);
+    }
+    
+    /* 技術總覽 */
+    .tech-overview {
+      background: var(--base-white);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px;
+      background: var(--base-grey);
+      border-radius: 8px;
+    }
+    
+    .tech-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-orange);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .tech-info h4 {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    
+    .tech-info p {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--base-black);
+      color: var(--base-white);
+      padding: 30px 20px;
+      text-align: center;
+    }
+    
+    footer p {
+      opacity: 0.6;
+      font-size: 14px;
+    }
+    
+    /* 響應式 */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>🍊 <span>Gamania</span> 動畫技術拆解</h1>
+    <p>從 www.gamania.com/about 頁面提取的動畫技術，每個功能都是獨立的 demo，方便學習和參考。</p>
+    <a href="http://localhost:8082/about.html" target="_blank" class="original-link">
+      <span>查看原始網站</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </a>
+  </header>
+  
+  <main>
+    <!-- 技術總覽 -->
+    <section class="tech-overview">
+      <h2 class="section-title">📚 使用技術總覽</h2>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <div class="tech-icon">G</div>
+          <div class="tech-info">
+            <h4>GSAP 3.13</h4>
+            <p>動畫引擎 + ScrollTrigger</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">3</div>
+          <div class="tech-info">
+            <h4>Three.js</h4>
+            <p>3D 地球 + GLTFLoader</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">L</div>
+          <div class="tech-info">
+            <h4>Lottie</h4>
+            <p>JSON 向量動畫</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">N</div>
+          <div class="tech-info">
+            <h4>Nuxt.js 3</h4>
+            <p>Vue SSR 框架</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">T</div>
+          <div class="tech-info">
+            <h4>TailwindCSS</h4>
+            <p>Utility-first CSS</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">C</div>
+          <div class="tech-info">
+            <h4>CameraControls</h4>
+            <p>Three.js 相機控制</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Demo Cards -->
+    <h2 class="section-title">🎯 獨立功能 Demo</h2>
+    <div class="cards-grid">
+      
+      <!-- Card 1: Loading -->
+      <article class="demo-card">
+        <div class="card-preview">
+          <iframe src="examples/01-loading/index.html" loading="lazy"></iframe>
+          <div class="card-preview-overlay">
+            <a href="examples/01-loading/index.html" target="_blank" class="preview-btn">開啟 Demo ↗</a>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-number">1</span>
+          <h3 class="card-title">Loading 動畫</h3>
+          <p class="card-desc">全螢幕載入動畫，包含橘色 Logo、Lottie spinner 和跑馬燈文字效果。</p>
+          <div class="card-tags">
+            <span class="tag primary">CSS Animation</span>
+            <span class="tag">Lottie</span>
+            <span class="tag">Marquee</span>
+          </div>
+        </div>
+      </article>
+      
+      <!-- Card 2: Hero Lottie -->
+      <article class="demo-card">
+        <div class="card-preview">
+          <iframe src="examples/02-hero-lottie/index.html" loading="lazy"></iframe>
+          <div class="card-preview-overlay">
+            <a href="examples/02-hero-lottie/index.html" target="_blank" class="preview-btn">開啟 Demo ↗</a>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-number">2</span>
+          <h3 class="card-title">Hero Lottie 動畫</h3>
+          <p class="card-desc">彩色卡通圖形圍繞標題的視覺效果，使用 Lottie JSON 動畫實現。</p>
+          <div class="card-tags">
+            <span class="tag primary">Lottie-web</span>
+            <span class="tag">SVG</span>
+            <span class="tag">Float Animation</span>
+          </div>
+        </div>
+      </article>
+      
+      <!-- Card 3: Timeline -->
+      <article class="demo-card">
+        <div class="card-preview">
+          <iframe src="examples/03-timeline/index.html" loading="lazy"></iframe>
+          <div class="card-preview-overlay">
+            <a href="examples/03-timeline/index.html" target="_blank" class="preview-btn">開啟 Demo ↗</a>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-number">3</span>
+          <h3 class="card-title">時間軸 ScrollTrigger</h3>
+          <p class="card-desc">3D 透視穿越時空隧道效果，配合滾動觸發里程碑事件展示。</p>
+          <div class="card-tags">
+            <span class="tag primary">GSAP</span>
+            <span class="tag">ScrollTrigger</span>
+            <span class="tag">Perspective</span>
+          </div>
+        </div>
+      </article>
+      
+      <!-- Card 4: Globe -->
+      <article class="demo-card">
+        <div class="card-preview">
+          <iframe src="examples/04-globe/index.html" loading="lazy"></iframe>
+          <div class="card-preview-overlay">
+            <a href="examples/04-globe/index.html" target="_blank" class="preview-btn">開啟 Demo ↗</a>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-number">4</span>
+          <h3 class="card-title">3D 地球動畫</h3>
+          <p class="card-desc">Three.js 3D 地球配合衛星軌道動畫，展示集團全球業務版圖。</p>
+          <div class="card-tags">
+            <span class="tag primary">Three.js</span>
+            <span class="tag">GLTFLoader</span>
+            <span class="tag">OrbitControls</span>
+          </div>
+        </div>
+      </article>
+      
+    </div>
+    
+    <!-- 代碼來源說明 -->
+    <section class="tech-overview">
+      <h2 class="section-title">📁 原始代碼來源</h2>
+      <p style="color: #666; margin-bottom: 15px;">以下是從原始網站提取的關鍵檔案：</p>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <div class="tech-icon">H</div>
+          <div class="tech-info">
+            <h4>about.html</h4>
+            <p>頁面結構 + Vue 組件</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">JS</div>
+          <div class="tech-info">
+            <h4>e0xA5-OP.js</h4>
+            <p>時間軸配置</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">JS</div>
+          <div class="tech-info">
+            <h4>DxbP4td9.js</h4>
+            <p>Three.js 地球模組</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">CSS</div>
+          <div class="tech-info">
+            <h4>entry.DKLpkfTP.css</h4>
+            <p>主樣式 + 動畫</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">3D</div>
+          <div class="tech-info">
+            <h4>gamaGlobe.glb</h4>
+            <p>地球 3D 模型</p>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">IMG</div>
+          <div class="tech-info">
+            <h4>gamaGlobe-4K.jpg</h4>
+            <p>4K 地球材質</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- Footer -->
+  <footer>
+    <p>教學用途 - 原始網站版權屬於 Gamania 橘子集團</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# START nuxt-robots (indexable)
+User-agent: *
+
+Sitemap: https://www.gamania.com/sitemap_index.xml
+# END nuxt-robots

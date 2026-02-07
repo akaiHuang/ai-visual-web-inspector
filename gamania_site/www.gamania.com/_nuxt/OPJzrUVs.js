@@ -1,0 +1,1 @@
+import{Z as o}from"#entry";const t=o({events:{}});function v(){return{on:(e,s)=>{t.events[e]||(t.events[e]=[]),t.events[e].push(s)},off:(e,s)=>{t.events[e]&&(s?t.events[e]=t.events[e].filter(n=>n!==s):delete t.events[e])},emit:(e,s)=>{t.events[e]&&t.events[e].forEach(n=>{n(s)})}}}export{v as u};

@@ -1,0 +1,1 @@
+import{c as o,d as t,e as s}from"#entry";const r={viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg"},c=["stroke"],_={__name:"Close24",props:{color:{type:String,default:"black"}},setup(e){return(n,a)=>(t(),o("svg",r,[s("path",{d:"M19 5.13931L5 19M19 18.8607L5 5",stroke:e.color,"stroke-width":"2.5","stroke-linecap":"round"},null,8,c)]))}};export{_};

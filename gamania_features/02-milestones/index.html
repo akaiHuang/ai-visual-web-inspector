@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>02 - Timeline Milestones | 真實原始碼提取</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap">
+  
+  <!-- GSAP 3.13.0 (與原始網站相同版本) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  
+  <style>
+    /* ==============================================
+       真實 CSS - 從 entry.DKLpkfTP.css 提取
+       ============================================== */
+    
+    :lang(zh) {
+      font-family: Helvetica Neue, Noto Sans TC, sans-serif;
+    }
+    
+    *, :after, :before {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body, html {
+      background-color: #000;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* 顏色變數 */
+    :root {
+      --base-white: #ffffff;
+      --base-black: #000000;
+      --primary-orange: #ff6400;
+    }
+    
+    /* ==============================================
+       Timeline 容器 (從 about.html 提取)
+       ============================================== */
+    
+    .slt-gsap-milestones {
+      margin-bottom: 200vh;
+      /* 原始 height: 8000px 由 JS 動態計算 */
+    }
+    
+    .milestone-fixed-container {
+      position: fixed;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+    }
+    
+    /* ==============================================
+       標題樣式 (真實原始碼)
+       ============================================== */
+    
+    .milestone-title {
+      white-space: nowrap;
+      text-align: left;
+      font-size: 30vw;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--base-white);
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-title {
+        font-size: 17.2vw;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .milestone-title {
+        font-size: 10vw;
+      }
+    }
+    
+    .text-primary-orange {
+      color: var(--primary-orange);
+    }
+    
+    /* ==============================================
+       年份事件卡片 (從 about.html 提取)
+       ============================================== */
+    
+    .milestone-event {
+      display: flex;
+      max-width: 285px;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-event {
+        max-width: 378px;
+        gap: 14px;
+      }
+    }
+    
+    @media (min-width: 1270px) {
+      .milestone-event {
+        max-width: 409px;
+        gap: 16px;
+      }
+    }
+    
+    .milestone-year {
+      white-space: pre-line;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      font-family: Helvetica Neue, sans-serif;
+      color: var(--base-white);
+    }
+    
+    @media (min-width: 1270px) {
+      .milestone-year {
+        font-size: 4rem;
+        letter-spacing: -0.02em;
+      }
+    }
+    
+    .milestone-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-content {
+        gap: 14px;
+      }
+    }
+    
+    @media (min-width: 1270px) {
+      .milestone-content {
+        gap: 16px;
+      }
+    }
+    
+    .milestone-item {
+      display: flex;
+      gap: 4px;
+      padding-left: 16px;
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-item {
+        padding-left: 20px;
+      }
+    }
+    
+    .milestone-icon {
+      display: flex;
+      height: 19.2px;
+      width: auto;
+      align-items: center;
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-icon {
+        height: 24px;
+      }
+    }
+    
+    @media (min-width: 1270px) {
+      .milestone-icon {
+        height: 28.8px;
+      }
+    }
+    
+    .milestone-text {
+      white-space: pre-line;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--base-white);
+    }
+    
+    @media (min-width: 640px) {
+      .milestone-text {
+        font-size: 1.25rem;
+      }
+    }
+    
+    @media (min-width: 1270px) {
+      .milestone-text {
+        font-size: 1.5rem;
+      }
+    }
+    
+    /* ==============================================
+       Timeline 展示區
+       ============================================== */
+    
+    .timeline-wrapper {
+      position: relative;
+      height: 400vh; /* ScrollTrigger 滾動範圍 */
+    }
+    
+    .timeline-content {
+      position: fixed;
+      top: 50%;
+      left: 5%;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    
+    .timeline-content.active {
+      opacity: 1;
+    }
+    
+    /* ==============================================
+       Demo 面板
+       ============================================== */
+    
+    .demo-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      font-family: sans-serif;
+      max-width: 300px;
+    }
+    
+    .demo-panel h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #ff6400;
+    }
+    
+    .demo-panel p {
+      font-size: 12px;
+      color: #ccc;
+      margin: 0;
+    }
+    
+    .progress-bar {
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #ff6400;
+      width: 0%;
+      transition: width 0.1s;
+    }
+    
+    /* 播放三角形 SVG (真實原始碼) */
+    .play-icon path {
+      fill: #ff6400;
+    }
+  </style>
+</head>
+<body lang="zh">
+
+<!-- Demo 控制面板 -->
+<div class="demo-panel">
+  <h3>🍊 Timeline Milestones</h3>
+  <p>向下滾動查看時間軸動畫</p>
+  <p>使用 GSAP ScrollTrigger 3.13.0</p>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress"></div>
+  </div>
+</div>
+
+<!--
+  ============================================
+  真實 HTML 結構 (從 about.html 第 199-350 行提取)
+  ============================================
+-->
+
+<section class="timeline-wrapper">
+  <div class="slt-gsap-milestones" id="milestones-container">
+    <div class="milestone-fixed-container">
+      
+      <!-- 隱藏的元素池 (真實原始結構) -->
+      <div class="absolute inset-0 h-0 w-0 overflow-hidden">
+        
+        <!-- 主標題 -->
+        <h1 class="milestone-title" id="slt-js-milestone-title-0">
+          <span class="text-primary-orange">顛覆自我的</span>
+          <span>破壞式創新</span>
+        </h1>
+        
+        <!-- Timeline 1: 橘子 1.0 -->
+        <ul class="w-fit">
+          <li>
+            <h1 class="milestone-title" id="slt-js-milestone-title-1">
+              <span class="text-primary-orange">START!</span>
+              <span>橘子1.0 開啟突破式創新</span>
+            </h1>
+            
+            <div class="milestone-event" id="slt-js-milestone-event-1-0">
+              <h2 class="milestone-year">1995'</h2>
+              <div class="milestone-content">
+                <div class="milestone-item">
+                  <span class="milestone-icon">
+                    <!-- 播放三角形 SVG (真實原始碼) -->
+                    <svg width="21" height="35" viewBox="0 0 21 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="play-icon">
+                      <path d="M15.4637 16.566C16.0753 16.8923 16.0753 17.769 15.4637 18.0952L5.17371 23.5832C4.59651 23.891 3.89941 23.4728 3.89941 22.8186L3.89941 11.8426C3.89941 11.1885 4.59652 10.7702 5.17371 11.0781L15.4637 16.566Z" fill="#FF6400"></path>
+                    </svg>
+                  </span>
+                  <div>
+                    <h4 class="milestone-text">富峰群資訊推出單機遊戲《便利商店》，亞洲銷量破 120 萬套。</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="milestone-event" id="slt-js-milestone-event-1-1">
+              <h2 class="milestone-year">1999'</h2>
+              <div class="milestone-content">
+                <div class="milestone-item">
+                  <span class="milestone-icon">
+                    <svg width="21" height="35" viewBox="0 0 21 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="play-icon">
+                      <path d="M15.4637 16.566C16.0753 16.8923 16.0753 17.769 15.4637 18.0952L5.17371 23.5832C4.59651 23.891 3.89941 23.4728 3.89941 22.8186L3.89941 11.8426C3.89941 11.1885 4.59652 10.7702 5.17371 11.0781L15.4637 16.566Z" fill="#FF6400"></path>
+                    </svg>
+                  </span>
+                  <div>
+                    <h4 class="milestone-text">正式更名為 gamania 遊戲橘子，代表一群對遊戲的狂熱份子。</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        
+        <!-- Timeline 2: 橘子 2.0 -->
+        <ul class="w-fit">
+          <li>
+            <h1 class="milestone-title" id="slt-js-milestone-title-2">
+              <span class="text-primary-orange">UPGRADING...</span>
+              <span>橘子2.0 推動典範轉移</span>
+            </h1>
+            
+            <div class="milestone-event" id="slt-js-milestone-event-2-0">
+              <h2 class="milestone-year">2000'</h2>
+              <div class="milestone-content">
+                <div class="milestone-item">
+                  <span class="milestone-icon">
+                    <svg width="21" height="35" viewBox="0 0 21 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="play-icon">
+                      <path d="M15.4637 16.566C16.0753 16.8923 16.0753 17.769 15.4637 18.0952L5.17371 23.5832C4.59651 23.891 3.89941 23.4728 3.89941 22.8186L3.89941 11.8426C3.89941 11.1885 4.59652 10.7702 5.17371 11.0781L15.4637 16.566Z" fill="#FF6400"></path>
+                    </svg>
+                  </span>
+                  <div>
+                    <h4 class="milestone-text">引進《天堂》線上遊戲，首創月費制，打造亞洲最大線上遊戲機房。</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        
+        <!-- Timeline 3: 橘子 3.0 -->
+        <ul class="w-fit">
+          <li>
+            <h1 class="milestone-title" id="slt-js-milestone-title-3">
+              <span class="text-primary-orange">KEEP ROLLING!</span>
+              <span>橘子3.0 啟動數位革新</span>
+            </h1>
+            
+            <div class="milestone-event" id="slt-js-milestone-event-3-0">
+              <h2 class="milestone-year">2025'</h2>
+              <div class="milestone-content">
+                <div class="milestone-item">
+                  <span class="milestone-icon">
+                    <svg width="21" height="35" viewBox="0 0 21 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="play-icon">
+                      <path d="M15.4637 16.566C16.0753 16.8923 16.0753 17.769 15.4637 18.0952L5.17371 23.5832C4.59651 23.891 3.89941 23.4728 3.89941 22.8186L3.89941 11.8426C3.89941 11.1885 4.59652 10.7702 5.17371 11.0781L15.4637 16.566Z" fill="#FF6400"></path>
+                    </svg>
+                  </span>
+                  <div>
+                    <h4 class="milestone-text">以 AI、大數據、平台為發展核心，打造全生態科技企業</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        
+      </div>
+      
+      <!-- 顯示區域 -->
+      <div class="timeline-content" id="display-area">
+        <!-- 動態內容由 GSAP 控制 -->
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<script>
+  // 註冊 ScrollTrigger 插件
+  gsap.registerPlugin(ScrollTrigger);
+  
+  // 時間軸資料 (從真實 HTML 提取 - 完整版)
+  const milestoneData = [
+    {
+      id: 0,
+      title: '<span class="text-primary-orange">顛覆自我的</span><span>破壞式創新</span>',
+      events: []
+    },
+    {
+      id: 1,
+      title: '<span class="text-primary-orange">START!</span><span>橘子1.0 開啟突破式創新</span>',
+      events: [
+        { year: "1995'", text: '富峰群資訊推出單機遊戲《便利商店》，亞洲銷量破 120 萬套。' },
+        { year: "1999'", text: '正式更名為 gamania 遊戲橘子，代表一群對遊戲的狂熱份子。' }
+      ]
+    },
+    {
+      id: 2,
+      title: '<span class="text-primary-orange">UPGRADING...</span><span>橘子2.0 推動典範轉移</span>',
+      events: [
+        { year: "2000'", text: '引進《天堂》線上遊戲，首創月費制，打造亞洲最大線上遊戲機房。' },
+        { year: "2002'", text: '正式在台灣掛牌上櫃。邁向集團化經營，打造產業新里程碑。' },
+        { year: "2005'", text: '代理「楓之谷」以免月費機制，再度顛覆台灣線上遊戲經營模式。' },
+        { year: "2007'", text: '推出首款自製《封魔獵人》線上遊戲，創立歐美分公司，邁入全球。' },
+        { year: "2013'", text: '完成全球化佈局，橘子GASH+點卡全家開賣 全台通路破萬家。' },
+        { year: "2015'", text: '宣示全生態網路企業布局成熟，拓展支付、電商、影視、新創等領域。' },
+        { year: "2019'", text: '橘子擴大泛娛樂版圖整合平台資源培植台灣IP。' }
+      ]
+    },
+    {
+      id: 3,
+      title: '<span class="text-primary-orange">KEEP ROLLING!</span><span>橘子3.0 啟動數位革新</span>',
+      events: [
+        { year: "2021'", text: '成立全新平台「文學星」、「漫畫星」進軍網路文學與漫畫市場。' },
+        { year: "2024'", text: '合併漫畫星、文學星，MOJOIN 全方位推動台灣原創IP。' },
+        { year: "2025'", text: '以 AI、大數據、平台為發展核心，打造全生態科技企業' }
+      ]
+    }
+  ];
+  
+  const displayArea = document.getElementById('display-area');
+  const progressBar = document.getElementById('progress');
+  let currentMilestone = -1;
+  
+  // 生成事件 HTML
+  function generateEventHTML(event) {
+    return `
+      <div class="milestone-event" style="margin-top: 20px;">
+        <h2 class="milestone-year">${event.year}</h2>
+        <div class="milestone-content">
+          <div class="milestone-item">
+            <span class="milestone-icon">
+              <svg width="21" height="35" viewBox="0 0 21 35" fill="none" xmlns="http://www.w3.org/2000/svg" class="play-icon">
+                <path d="M15.4637 16.566C16.0753 16.8923 16.0753 17.769 15.4637 18.0952L5.17371 23.5832C4.59651 23.891 3.89941 23.4728 3.89941 22.8186L3.89941 11.8426C3.89941 11.1885 4.59652 10.7702 5.17371 11.0781L15.4637 16.566Z" fill="#FF6400"></path>
+              </svg>
+            </span>
+            <div>
+              <h4 class="milestone-text">${event.text}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // 更新顯示內容
+  function updateDisplay(index) {
+    if (index === currentMilestone) return;
+    currentMilestone = index;
+    
+    const milestone = milestoneData[index];
+    if (!milestone) return;
+    
+    let html = `<h1 class="milestone-title">${milestone.title}</h1>`;
+    milestone.events.forEach(event => {
+      html += generateEventHTML(event);
+    });
+    
+    displayArea.innerHTML = html;
+    displayArea.classList.add('active');
+  }
+  
+  // ScrollTrigger 動畫
+  ScrollTrigger.create({
+    trigger: '.timeline-wrapper',
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: true,
+    onUpdate: (self) => {
+      const progress = self.progress;
+      progressBar.style.width = (progress * 100) + '%';
+      
+      // 根據進度切換里程碑
+      const index = Math.floor(progress * milestoneData.length);
+      updateDisplay(Math.min(index, milestoneData.length - 1));
+    }
+  });
+  
+  // 初始化第一個里程碑
+  updateDisplay(0);
+</script>
+
+</body>
+</html>

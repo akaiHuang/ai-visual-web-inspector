@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>時間軸 ScrollTrigger 動畫 - 提取自 Gamania</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-orange: #FF6400;
+      --base-black: #000;
+      --base-white: #fff;
+    }
+    
+    body {
+      font-family: 'Noto Sans TC', 'Helvetica Neue', sans-serif;
+      background: var(--base-black);
+      color: var(--base-white);
+    }
+    
+    /* 時間軸容器 - 模擬原始 slt-gsap-milestones */
+    .timeline-container {
+      height: 8000px; /* 原始網站設定 */
+      margin-bottom: 200vh;
+    }
+    
+    /* 固定視窗 */
+    .timeline-fixed {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+    
+    /* 3D 隧道效果背景 */
+    .tunnel-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, var(--base-black) 70%);
+    }
+    
+    /* 光線效果 */
+    .light-rays {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200%;
+      height: 200%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    
+    .ray {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 100vh;
+      background: linear-gradient(to top, var(--primary-orange), transparent);
+      transform-origin: bottom center;
+      opacity: 0.6;
+    }
+    
+    /* 主標題 - 3D 透視效果 */
+    .milestone-title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) perspective(1000px) rotateX(45deg);
+      white-space: nowrap;
+      font-size: 10vw;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 50px rgba(255, 100, 0, 0.5);
+    }
+    
+    .milestone-title .orange {
+      color: var(--primary-orange);
+    }
+    
+    /* 事件卡片 */
+    .event-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) perspective(1000px) rotateX(30deg) translateZ(0);
+      max-width: 400px;
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+    
+    .event-card.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) perspective(1000px) rotateX(0deg) translateZ(0);
+    }
+    
+    .event-year {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    
+    .event-content {
+      display: flex;
+      gap: 0.5rem;
+      padding-left: 1.25rem;
+    }
+    
+    .event-marker {
+      color: var(--primary-orange);
+      font-size: 1.5rem;
+    }
+    
+    .event-text {
+      font-size: 1.25rem;
+      line-height: 1.5;
+    }
+    
+    /* 圓形光暈 */
+    .glow-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      border: 2px solid var(--primary-orange);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    .glow-ring:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      animation-delay: 0.5s;
+    }
+    
+    .glow-ring:nth-child(3) {
+      width: 500px;
+      height: 500px;
+      animation-delay: 1s;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
+    }
+    
+    /* SKIP 按鈕 */
+    .skip-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 2px solid var(--primary-orange);
+      color: var(--primary-orange);
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    .skip-btn:hover {
+      background: var(--primary-orange);
+      color: var(--base-black);
+    }
+    
+    /* 進度指示器 */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: var(--primary-orange);
+      z-index: 100;
+      transition: width 0.1s linear;
+    }
+    
+    /* 說明面板 */
+    .info-panel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.95);
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      max-width: 320px;
+      z-index: 100;
+      color: #333;
+    }
+    
+    .info-panel h3 {
+      margin-bottom: 10px;
+      color: var(--primary-orange);
+    }
+    
+    .info-panel p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+    }
+    
+    .info-panel code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 進度條 -->
+  <div class="progress-bar" id="progress"></div>
+  
+  <!-- 時間軸區域 -->
+  <div class="timeline-container">
+    <div class="timeline-fixed" id="timeline">
+      <!-- 背景效果 -->
+      <div class="tunnel-bg"></div>
+      
+      <!-- 光線 -->
+      <div class="light-rays" id="rays"></div>
+      
+      <!-- 光暈圓環 -->
+      <div class="glow-ring"></div>
+      <div class="glow-ring"></div>
+      <div class="glow-ring"></div>
+      
+      <!-- 主標題 -->
+      <div class="milestone-title" id="title">
+        <span class="orange">START!</span>
+        <span>橘子1.0 開啟突破式創新</span>
+      </div>
+      
+      <!-- 事件卡片 -->
+      <div class="event-card" id="event">
+        <div class="event-year">1995'</div>
+        <div class="event-content">
+          <span class="event-marker">▶</span>
+          <p class="event-text">富峰群資訊推出單機遊戲《便利商店》，亞洲銷量破 120 萬套。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SKIP 按鈕 -->
+  <button class="skip-btn">
+    SKIP
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+  
+  <!-- 說明面板 -->
+  <div class="info-panel">
+    <h3>⏰ 時間軸 ScrollTrigger</h3>
+    <p>原始網站使用 GSAP ScrollTrigger 配合 3D 透視效果，創造「穿越時空隧道」的沉浸式體驗。</p>
+    <p style="margin-top: 10px;"><strong>技術要點：</strong></p>
+    <ul style="font-size: 13px; margin-top: 5px; padding-left: 20px; color: #666;">
+      <li><code>ScrollTrigger.create()</code></li>
+      <li><code>perspective</code> + <code>rotateX</code></li>
+      <li>時間軸分段：entering → starting → charging → boosting</li>
+      <li>光線放射動畫</li>
+    </ul>
+    <p style="margin-top: 10px; font-size: 12px; color: #999;">滾動頁面查看動畫效果 ↓</p>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script>
+    // === 時間軸動畫邏輯 ===
+    
+    // 原始網站的時間配置
+    const timelineConfig = {
+      entering: 1500,  // 進入階段
+      starting: 3000,  // 開始階段
+      charging: 700,   // 蓄力階段
+      boosting: 600,   // 加速階段
+      ending: 100      // 結束階段
+    };
+    
+    // 里程碑資料
+    const milestones = [
+      {
+        title: ['START!', '橘子1.0 開啟突破式創新'],
+        events: [
+          { year: "1995'", text: '富峰群資訊推出單機遊戲《便利商店》，亞洲銷量破 120 萬套。' },
+          { year: "1999'", text: '正式更名為 gamania 遊戲橘子，代表一群對遊戲的狂熱份子。' }
+        ]
+      },
+      {
+        title: ['UPGRADING...', '橘子2.0 推動典範轉移'],
+        events: [
+          { year: "2000'", text: '引進《天堂》線上遊戲，首創月費制，打造亞洲最大線上遊戲機房。' },
+          { year: "2002'", text: '正式在台灣掛牌上櫃。邁向集團化經營，打造產業新里程碑。' },
+          { year: "2005'", text: '代理「楓之谷」以免月費機制，再度顛覆台灣線上遊戲經營模式。' }
+        ]
+      },
+      {
+        title: ['KEEP ROLLING!', '橘子3.0 啟動數位革新'],
+        events: [
+          { year: "2021'", text: '成立全新平台「文學星」、「漫畫星」進軍網路文學與漫畫市場。' },
+          { year: "2024'", text: '合併漫畫星、文學星，MOJOIN 全方位推動台灣原創IP。' },
+          { year: "2025'", text: '以 AI、大數據、平台為發展核心，打造全生態科技企業' }
+        ]
+      }
+    ];
+    
+    let currentMilestone = 0;
+    let currentEvent = 0;
+    
+    // 創建光線
+    function createRays() {
+      const raysContainer = document.getElementById('rays');
+      const rayCount = 24;
+      
+      for (let i = 0; i < rayCount; i++) {
+        const ray = document.createElement('div');
+        ray.className = 'ray';
+        const angle = (360 / rayCount) * i;
+        ray.style.transform = `rotate(${angle}deg)`;
+        ray.style.animationDelay = `${i * 0.1}s`;
+        raysContainer.appendChild(ray);
+      }
+    }
+    
+    // 更新標題
+    function updateTitle(milestone) {
+      const titleEl = document.getElementById('title');
+      titleEl.innerHTML = `
+        <span class="orange">${milestone.title[0]}</span>
+        <span>${milestone.title[1]}</span>
+      `;
+    }
+    
+    // 更新事件
+    function updateEvent(event) {
+      const eventEl = document.getElementById('event');
+      eventEl.innerHTML = `
+        <div class="event-year">${event.year}</div>
+        <div class="event-content">
+          <span class="event-marker">▶</span>
+          <p class="event-text">${event.text}</p>
+        </div>
+      `;
+      
+      // 觸發動畫
+      eventEl.classList.remove('active');
+      setTimeout(() => eventEl.classList.add('active'), 50);
+    }
+    
+    // GSAP ScrollTrigger 設定
+    gsap.registerPlugin(ScrollTrigger);
+    
+    // 主時間軸動畫
+    ScrollTrigger.create({
+      trigger: '.timeline-container',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        
+        // 更新進度條
+        document.getElementById('progress').style.width = `${progress * 100}%`;
+        
+        // 計算當前里程碑和事件
+        const totalEvents = milestones.reduce((sum, m) => sum + m.events.length, 0);
+        const currentIndex = Math.floor(progress * totalEvents);
+        
+        let eventCount = 0;
+        for (let m = 0; m < milestones.length; m++) {
+          for (let e = 0; e < milestones[m].events.length; e++) {
+            if (eventCount === currentIndex) {
+              if (currentMilestone !== m) {
+                currentMilestone = m;
+                updateTitle(milestones[m]);
+              }
+              if (currentEvent !== e || currentMilestone !== m) {
+                currentEvent = e;
+                updateEvent(milestones[m].events[e]);
+              }
+              return;
+            }
+            eventCount++;
+          }
+        }
+        
+        // 3D 透視動畫
+        const titleEl = document.getElementById('title');
+        const rotateX = 45 - (progress * 45);
+        const scale = 0.5 + (progress * 0.5);
+        const translateZ = -500 + (progress * 500);
+        
+        titleEl.style.transform = `
+          translate(-50%, -50%) 
+          perspective(1000px) 
+          rotateX(${rotateX}deg)
+          scale(${scale})
+          translateZ(${translateZ}px)
+        `;
+        
+        // 光線強度
+        document.querySelectorAll('.ray').forEach((ray, i) => {
+          const intensity = 0.3 + (progress * 0.7);
+          ray.style.opacity = intensity;
+          ray.style.height = `${50 + progress * 50}vh`;
+        });
+      }
+    });
+    
+    // 初始化
+    createRays();
+    updateTitle(milestones[0]);
+    updateEvent(milestones[0].events[0]);
+    
+    // SKIP 按鈕
+    document.querySelector('.skip-btn').addEventListener('click', () => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    });
+  </script>
+</body>
+</html>

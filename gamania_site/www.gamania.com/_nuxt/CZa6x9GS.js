@@ -1,0 +1,1 @@
+import{ay as l}from"#entry";function r(){const n=l("isOpen",()=>!1),s=l("currentLink",()=>null),o=t=>{n.value=!0,e(t)},u=()=>{n.value=!1,e(null)},e=t=>{s.value=t};return{isOpen:n,currentLink:s,openModal:o,closeModal:u,setCurrentLink:e}}export{r as u};

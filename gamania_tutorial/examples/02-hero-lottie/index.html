@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Lottie 動畫 - 提取自 Gamania</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-orange: #FF6400;
+      --base-silver: #D9DBE0;
+    }
+    
+    body {
+      font-family: 'Helvetica Neue', 'Noto Sans TC', sans-serif;
+      background: var(--base-silver);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* Hero 區域 - 提取自原始網站 slt-gsap-about-top */
+    .hero-section {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      overflow: hidden;
+      padding-bottom: 5%;
+    }
+    
+    /* 標題樣式 */
+    .hero-title {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      line-height: 1.3;
+      color: #000;
+    }
+    
+    @media (min-width: 1270px) {
+      .hero-title {
+        font-size: 4rem;
+      }
+    }
+    
+    /* 標題文字動畫 */
+    .hero-title span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .hero-title span:nth-child(1) { animation-delay: 0.1s; }
+    .hero-title span:nth-child(2) { animation-delay: 0.2s; }
+    .hero-title span:nth-child(3) { animation-delay: 0.3s; }
+    .hero-title span:nth-child(4) { animation-delay: 0.4s; }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* 滾動按鈕 */
+    .scroll-btn {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 0.75rem;
+      border-radius: 9999px;
+      background: #9CA3AF;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .scroll-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .scroll-btn svg {
+      transform: rotate(90deg);
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: rotate(90deg) translateX(0); }
+      50% { transform: rotate(90deg) translateX(5px); }
+    }
+    
+    /* Lottie 彩色圖形容器 */
+    .lottie-shapes {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    /* 彩色圖形 - 模擬 Lottie 動畫效果 */
+    .shape {
+      position: absolute;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .shape-1 { top: -5%; left: 10%; animation-delay: 0s; }
+    .shape-2 { top: 5%; right: 5%; animation-delay: 1s; }
+    .shape-3 { top: 40%; left: -5%; animation-delay: 2s; }
+    .shape-4 { top: 35%; right: -5%; animation-delay: 0.5s; }
+    .shape-5 { bottom: 15%; left: 5%; animation-delay: 1.5s; }
+    .shape-6 { bottom: 20%; left: 30%; animation-delay: 2.5s; }
+    .shape-7 { bottom: -5%; right: 30%; animation-delay: 0.8s; }
+    .shape-8 { bottom: 10%; right: 5%; animation-delay: 1.8s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    /* 控制面板 */
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .controls button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary-orange);
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .controls button:hover {
+      transform: scale(1.05);
+    }
+    
+    /* 說明面板 */
+    .info-panel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 300px;
+      z-index: 100;
+    }
+    
+    .info-panel h3 {
+      margin-bottom: 10px;
+      color: var(--primary-orange);
+    }
+    
+    .info-panel p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h2 class="hero-title">
+      <span>關</span><span>於</span><span>橘</span><span>子</span>
+    </h2>
+    
+    <button class="scroll-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M19.5 12H3.5" stroke="black" stroke-width="2.5" stroke-linecap="round"></path>
+        <path d="M15 6L20.1161 11.1161C20.6043 11.6043 20.6043 12.3957 20.1161 12.8839L15 18" stroke="black" stroke-width="2.5" stroke-linecap="round"></path>
+      </svg>
+    </button>
+    
+    <!-- Lottie 圖形區域 - 使用 SVG 模擬 -->
+    <div class="lottie-shapes" id="lottie-container">
+      <!-- 圖形會由 JS 動態生成 -->
+    </div>
+  </section>
+  
+  <!-- 說明面板 -->
+  <div class="info-panel">
+    <h3>🎨 Hero Lottie 動畫</h3>
+    <p>原始網站使用 Lottie-web 載入 JSON 動畫，展示彩色卡通圖形圍繞標題的效果。</p>
+    <p style="margin-top: 8px;">技術要點：</p>
+    <ul style="font-size: 13px; margin-top: 5px; padding-left: 20px; color: #666;">
+      <li>Lottie JSON 動畫檔案</li>
+      <li>CSS Float 動畫效果</li>
+      <li>標題淡入動畫</li>
+    </ul>
+  </div>
+  
+  <!-- 控制面板 -->
+  <div class="controls">
+    <button onclick="toggleAnimation()">暫停/播放</button>
+    <button onclick="randomizePositions()">隨機位置</button>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script>
+    // === Hero 動畫邏輯 ===
+    
+    // 彩色圖形設定（模擬原始 Lottie 的彩色卡通風格）
+    const shapes = [
+      { color: '#FF6400', type: 'blob1', size: 180 },  // 橘色
+      { color: '#FF6400', type: 'blob2', size: 160 },  // 橘色
+      { color: '#3B82F6', type: 'rect', size: 150 },   // 藍色
+      { color: '#10B981', type: 'blob3', size: 140 },  // 綠色
+      { color: '#10B981', type: 'leaf', size: 160 },   // 綠色
+      { color: '#EF4444', type: 'heart', size: 130 },  // 紅色
+      { color: '#F59E0B', type: 'star', size: 150 },   // 黃色
+      { color: '#3B82F6', type: 'blob4', size: 170 },  // 藍色
+    ];
+    
+    // 創建 SVG 圖形
+    function createShape(config, index) {
+      const shape = document.createElement('div');
+      shape.className = `shape shape-${index + 1}`;
+      shape.style.width = `${config.size}px`;
+      shape.style.height = `${config.size}px`;
+      
+      // 根據類型創建不同的 SVG
+      let svgContent = '';
+      switch(config.type) {
+        case 'blob1':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M50 5C75 5 95 25 95 50C95 75 75 95 50 95C25 95 5 75 5 50C5 25 25 5 50 5Z" fill="${config.color}"/><ellipse cx="35" cy="40" rx="8" ry="12" fill="white"/><path d="M60 30 Q80 50 60 70" stroke="${config.color}" stroke-width="8" fill="none" style="filter: brightness(0.8)"/></svg>`;
+          break;
+        case 'blob2':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M30 20C60 10 90 30 85 60C80 90 40 95 20 70C0 45 0 30 30 20Z" fill="${config.color}"/><ellipse cx="45" cy="45" rx="6" ry="10" fill="white"/></svg>`;
+          break;
+        case 'rect':
+          svgContent = `<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="15" fill="${config.color}" transform="rotate(15 50 50)"/><ellipse cx="40" cy="45" rx="6" ry="10" fill="white"/></svg>`;
+          break;
+        case 'blob3':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M50 10C80 10 90 40 90 50C90 80 60 90 50 90C20 90 10 60 10 50C10 20 20 10 50 10Z" fill="${config.color}"/><ellipse cx="45" cy="45" rx="6" ry="10" fill="white"/></svg>`;
+          break;
+        case 'leaf':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M50 10C80 30 80 70 50 90C20 70 20 30 50 10Z" fill="${config.color}"/><ellipse cx="45" cy="45" rx="5" ry="8" fill="white"/><line x1="50" y1="30" x2="50" y2="70" stroke="${config.color}" stroke-width="4" style="filter: brightness(0.8)"/></svg>`;
+          break;
+        case 'heart':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M50 85C20 60 10 40 25 25C40 10 50 20 50 30C50 20 60 10 75 25C90 40 80 60 50 85Z" fill="${config.color}"/><ellipse cx="35" cy="40" rx="5" ry="8" fill="white"/></svg>`;
+          break;
+        case 'star':
+          svgContent = `<svg viewBox="0 0 100 100"><path d="M50 10L60 40L95 40L68 60L78 95L50 75L22 95L32 60L5 40L40 40Z" fill="${config.color}"/><ellipse cx="45" cy="50" rx="5" ry="8" fill="white"/></svg>`;
+          break;
+        case 'blob4':
+          svgContent = `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="45" ry="35" fill="${config.color}"/><ellipse cx="40" cy="45" rx="6" ry="10" fill="white"/></svg>`;
+          break;
+      }
+      
+      shape.innerHTML = svgContent;
+      return shape;
+    }
+    
+    // 初始化圖形
+    function initShapes() {
+      const container = document.getElementById('lottie-container');
+      container.innerHTML = '';
+      
+      shapes.forEach((config, index) => {
+        const shape = createShape(config, index);
+        container.appendChild(shape);
+      });
+    }
+    
+    // 暫停/播放動畫
+    let isPaused = false;
+    function toggleAnimation() {
+      const shapes = document.querySelectorAll('.shape');
+      isPaused = !isPaused;
+      shapes.forEach(shape => {
+        shape.style.animationPlayState = isPaused ? 'paused' : 'running';
+      });
+    }
+    
+    // 隨機化位置
+    function randomizePositions() {
+      const shapeElements = document.querySelectorAll('.shape');
+      shapeElements.forEach(shape => {
+        const x = Math.random() * 80 - 10;
+        const y = Math.random() * 80 - 10;
+        shape.style.left = `${x}%`;
+        shape.style.top = `${y}%`;
+      });
+    }
+    
+    // 初始化
+    initShapes();
+  </script>
+</body>
+</html>
