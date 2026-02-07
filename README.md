@@ -4,13 +4,17 @@
 
 An AI-driven web page inspection toolkit that uses the Playwright Model Context Protocol (MCP) to visually analyze, deconstruct, and document live websites. Built to let AI agents see, understand, and report on web interfaces the way a senior frontend developer would.
 
+## 📋 Quick Summary
+
+> 🔍 **AI Visual Web Inspector** 是一套以 AI 驅動的網頁視覺分析工具包，利用 🎭 Playwright Model Context Protocol (MCP) 讓 AI 代理能像資深前端工程師一樣「看見」並理解網頁。不同於傳統爬蟲只抓取原始 HTML，本系統透過 Playwright 啟動 🌐 Chromium 瀏覽器實際渲染頁面，擷取全頁截圖 📸、解析即時 DOM 結構、觀察動畫行為與互動模式，提供超越原始碼層級的深度分析。核心工作流程包含四大階段：視覺擷取 👁️、DOM 檢查 🔧、功能拆解 📦、教學生成 📚。系統會將複雜的前端功能（CSS 動畫、GSAP 滾動特效、Three.js 3D 渲染等）自動拆解為獨立可複用模組，並產出含核心程式碼與實作教學的完整文件。專案內含 🏢 Gamania 遊戲橘子企業官網的完整分析案例，展示從載入動畫到時間軸到 3D 地球儀的全方位功能提取成果。適合前端技術研究、競品分析與 AI 輔助開發場景 🚀。
+
 ---
 
-## Why This Exists
+## 🤔 Why This Exists
 
 Traditional web scraping captures raw HTML. Code review reads static files. Neither approach truly understands what a web page looks and feels like at runtime. This project uses Playwright MCP to give AI models actual visual context -- rendered screenshots, live DOM structure, animation behavior, and interaction patterns -- enabling deep analysis that goes beyond source code alone.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 AI Agent (Claude / LLM)
@@ -29,14 +33,14 @@ Structured Analysis Output
   - Reusable code extraction with tutorials
 ```
 
-### How It Works
+### ⚙️ How It Works
 
 1. **Visual Capture** -- Playwright MCP navigates to target pages, captures full-page screenshots, and provides the AI with actual visual representations of the rendered site.
 2. **DOM Inspection** -- The AI agent queries DOM elements, CSS properties, and JavaScript behavior through MCP tool calls, inspecting the page as a developer would in DevTools.
 3. **Feature Decomposition** -- Complex web features (CSS animations, GSAP scroll effects, Three.js 3D renders) are identified, isolated, and documented as standalone, reproducible modules.
 4. **Tutorial Generation** -- Each extracted feature is accompanied by implementation tutorials with core HTML/CSS/JS structure, technical explanations, and runnable examples.
 
-### Case Study: Gamania Corporate Site Analysis
+### 🏢 Case Study: Gamania Corporate Site Analysis
 
 This project includes a complete analysis of the Gamania Group (gamania.com) corporate website, demonstrating the full inspection workflow:
 
@@ -61,14 +65,14 @@ This project includes a complete analysis of the Gamania Group (gamania.com) cor
 
 Each tutorial includes core code, visual references, and runnable examples in the `examples/` directory.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **AI Integration**: Playwright Model Context Protocol (MCP)
 - **Browser Engine**: Playwright (Chromium)
 - **Analysis Targets**: Nuxt.js, Vue SSR, GSAP, Three.js, TailwindCSS
 - **Output Formats**: Markdown documentation, standalone HTML/CSS/JS modules, tutorial pages
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ai-visual-web-inspector/
@@ -85,7 +89,7 @@ ai-visual-web-inspector/
     index.html                 # Interactive tutorial browser
 ```
 
-## Usage
+## 💡 Usage
 
 This toolkit is designed to work with an AI agent that has access to Playwright MCP tools. The AI navigates to any target website, captures visual and structural data, and produces decomposed feature modules and documentation.
 
