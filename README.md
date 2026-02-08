@@ -4,6 +4,10 @@
 
 An AI-driven web page inspection toolkit that uses the Playwright Model Context Protocol (MCP) to visually analyze, deconstruct, and document live websites. Built to let AI agents see, understand, and report on web interfaces the way a senior frontend developer would.
 
+## About
+
+AI Visual Web Inspector 是一套以 Playwright MCP 驅動的網頁檢測工具，讓 AI 代理能以「看見」頁面的方式進行理解與分析。適合用於 UI/UX 檢查、回歸測試輔助、可用性問題盤點與前端除錯，將人工巡檢流程工具化。
+
 ## 📋 Quick Summary
 
 > 🔍 **AI Visual Web Inspector** 是一套以 AI 驅動的網頁視覺分析工具包，利用 🎭 Playwright Model Context Protocol (MCP) 讓 AI 代理能像資深前端工程師一樣「看見」並理解網頁。不同於傳統爬蟲只抓取原始 HTML，本系統透過 Playwright 啟動 🌐 Chromium 瀏覽器實際渲染頁面，擷取全頁截圖 📸、解析即時 DOM 結構、觀察動畫行為與互動模式，提供超越原始碼層級的深度分析。核心工作流程包含四大階段：視覺擷取 👁️、DOM 檢查 🔧、功能拆解 📦、教學生成 📚。系統會將複雜的前端功能（CSS 動畫、GSAP 滾動特效、Three.js 3D 渲染等）自動拆解為獨立可複用模組，並產出含核心程式碼與實作教學的完整文件。專案內含 🏢 Gamania 遊戲橘子企業官網的完整分析案例，展示從載入動畫到時間軸到 3D 地球儀的全方位功能提取成果。適合前端技術研究、競品分析與 AI 輔助開發場景 🚀。
